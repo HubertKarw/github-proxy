@@ -1,6 +1,7 @@
 package com.hubertkarw.github_proxy.controller;
 
 import com.hubertkarw.github_proxy.feignClient.GithubRepositoryClient;
+import com.hubertkarw.github_proxy.mapper.RepositoryStructMapper;
 import com.hubertkarw.github_proxy.model.GitRepositoryDTO;
 import com.hubertkarw.github_proxy.service.GitRepositoryService;
 import lombok.AllArgsConstructor;
@@ -15,9 +16,10 @@ import org.springframework.web.bind.annotation.RestController;
 public class GitRepositoryController {
     private final GitRepositoryService service;
     private final GithubRepositoryClient client;
+    private final RepositoryStructMapper mapper;
 
     @GetMapping("/{owner}/{repository}")
     GitRepositoryDTO getRepository(@PathVariable(name = "owner") String owner, @PathVariable(name = "repository")String repository){
-        return null;
+        return mapper.mapToDTO(client.getGitRepository(owner,repository));
     }
 }
