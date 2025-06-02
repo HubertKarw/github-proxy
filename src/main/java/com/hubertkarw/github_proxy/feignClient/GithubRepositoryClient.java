@@ -8,7 +8,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 @FeignClient(value = "github", url = "https://api.github.com")
 public interface GithubRepositoryClient {
 
-    @GetMapping("/repos/{owner}/{repostiory}")
+    @GetMapping("/repos/{owner}/{repository}")
     GitRepository getGitRepository(
             @PathVariable("owner") String owner,
             @PathVariable("repository") String repo
