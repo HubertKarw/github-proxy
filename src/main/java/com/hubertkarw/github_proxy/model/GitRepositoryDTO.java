@@ -13,7 +13,7 @@ import java.time.LocalDateTime;
 public class GitRepositoryDTO {
     private String fullName;
     private String description;
-    private String cloneURL;
-    private long stars;
+    private String cloneUrl;
+    private Long stars;
     private LocalDateTime createdAt;
 }

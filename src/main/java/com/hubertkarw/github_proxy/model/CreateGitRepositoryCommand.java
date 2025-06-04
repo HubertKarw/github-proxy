@@ -12,6 +12,6 @@ public class CreateGitRepositoryCommand {
     private String fullName;
     private String description;
     private String cloneURL;
-    private long stars;
+    private Long stars;
     private LocalDateTime createdAt;
 }

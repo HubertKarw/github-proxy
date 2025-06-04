@@ -1,6 +1,7 @@
 package com.hubertkarw.github_proxy.feignClient;
 
 import com.hubertkarw.github_proxy.model.GitRepository;
+import com.hubertkarw.github_proxy.model.GitRepositoryInfo;
 import org.springframework.cloud.openfeign.FeignClient;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -9,7 +10,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 public interface GithubRepositoryClient {
 
     @GetMapping("/repos/{owner}/{repository}")
-    GitRepository getGitRepository(
+    GitRepositoryInfo getGitRepository(
             @PathVariable("owner") String owner,
             @PathVariable("repository") String repo
     );
