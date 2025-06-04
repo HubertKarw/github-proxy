@@ -8,8 +8,8 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 @ControllerAdvice
 public class GitRepositoryExceptionHandler {
     @ExceptionHandler(GitRepositoryException.class)
-    ResponseEntity<ErrorMessage> handleRepoNotFound(GitRepositoryException exception){
-        return ResponseEntity.status(exception.getStatus()).body(new ErrorMessage(exception.getStatus().value(),exception.getStatus().getReasonPhrase(),exception.getMessage(),exception.getTimestamp()));
+    ResponseEntity<ErrorMessage> handleRepoNotFound(GitRepositoryException exception) {
+        return ResponseEntity.status(exception.getStatus()).body(new ErrorMessage(exception.getStatus().value(), exception.getStatus().getReasonPhrase(), exception.getMessage(), exception.getTimestamp()));
     }
 
 }

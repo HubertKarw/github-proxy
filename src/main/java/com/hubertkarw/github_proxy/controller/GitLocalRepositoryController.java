@@ -15,7 +15,7 @@ public class GitLocalRepositoryController {
     private final GitRepositoryService service;
 
     @GetMapping("/{owner}/{repository}")
-    public GitRepositoryDTO getLocalRepo(@PathVariable(name = "owner") String owner, @PathVariable(name = "repository")String repository){
-        return service.getLocalRepo(owner,repository);
+    public GitRepositoryDTO getLocalRepo(@PathVariable(name = "owner") String owner, @PathVariable(name = "repository") String repository) {
+        return service.getLocalRepo(owner, repository);
     }
 }

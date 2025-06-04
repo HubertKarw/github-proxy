@@ -8,7 +8,9 @@ import org.mapstruct.Mapper;
 
 @Mapper(componentModel = "spring")
 public interface RepositoryStructMapper {
-    GitRepository mapToRepository (CreateGitRepositoryCommand command);
-    GitRepositoryDTO mapToDTO (GitRepository repository);
-    GitRepository toEntity (GitRepositoryInfo repositoryInfo);
+    GitRepository mapToRepository(CreateGitRepositoryCommand command);
+
+    GitRepositoryDTO mapToDTO(GitRepository repository);
+
+    GitRepository toEntity(GitRepositoryInfo repositoryInfo);
 }

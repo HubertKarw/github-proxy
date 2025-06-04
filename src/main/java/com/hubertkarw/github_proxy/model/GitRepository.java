@@ -22,11 +22,11 @@ public class GitRepository {
     private Long stars;
     private LocalDateTime createdAt;
 
-    public static String generateFullName(String owner, String repo){
-        return owner+"/"+repo;
+    public static String generateFullName(String owner, String repo) {
+        return owner + "/" + repo;
     }
 
-    public void update(GitRepository updated){
+    public void update(GitRepository updated) {
         this.fullName = updated.getFullName();
         this.description = updated.getDescription();
         this.cloneUrl = updated.getCloneUrl();

@@ -23,8 +23,8 @@ public class GitRepositoryService {
     public GitRepositoryDTO getRepositoryInfo(String owner, String repository) {
         try {
             return mapper.mapToDTO(mapper.toEntity(client.getGitRepository(owner, repository)));
-        }catch (FeignException.FeignClientException.NotFound ex){
-            throw new GitRepositoryException("Requested repo could not be found",HttpStatus.NOT_FOUND);
+        } catch (FeignException.FeignClientException.NotFound ex) {
+            throw new GitRepositoryException("Requested repo could not be found", HttpStatus.NOT_FOUND);
         }
     }
 
@@ -33,8 +33,8 @@ public class GitRepositoryService {
         try {
             GitRepositoryInfo info = client.getGitRepository(owner, repository);
             return mapper.mapToDTO(jpaRepository.save(mapper.toEntity(info)));
-        }catch (FeignException.FeignClientException.NotFound ex){
-            throw new GitRepositoryException("Requested repo could not be found",HttpStatus.NOT_FOUND);
+        } catch (FeignException.FeignClientException.NotFound ex) {
+            throw new GitRepositoryException("Requested repo could not be found", HttpStatus.NOT_FOUND);
         }
 
     }
@@ -50,8 +50,8 @@ public class GitRepositoryService {
                 .orElseThrow(() -> new GitRepositoryException("Cannot find local repo", HttpStatus.NOT_FOUND));
         try {
             repoToUpdate.update(mapper.toEntity(client.getGitRepository(owner, repository)));
-        }catch (FeignException.FeignClientException.NotFound ex){
-            throw new GitRepositoryException("Requested repo could not be found",HttpStatus.NOT_FOUND);
+        } catch (FeignException.FeignClientException.NotFound ex) {
+            throw new GitRepositoryException("Requested repo could not be found", HttpStatus.NOT_FOUND);
         }
         return mapper.mapToDTO(jpaRepository.save(repoToUpdate));
     }
