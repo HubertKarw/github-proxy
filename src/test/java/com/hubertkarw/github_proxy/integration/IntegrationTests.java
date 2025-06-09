@@ -7,10 +7,13 @@ import com.github.tomakehurst.wiremock.client.WireMock;
 import com.hubertkarw.github_proxy.model.GitRepository;
 import com.hubertkarw.github_proxy.model.GitRepositoryInfo;
 import com.hubertkarw.github_proxy.repository.GitRepositoryJpaRepository;
+import org.hibernate.annotations.processing.SQL;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.autoconfigure.jdbc.JdbcTest;
+import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.web.server.LocalServerPort;
 import org.springframework.cloud.contract.wiremock.AutoConfigureWireMock;
@@ -18,6 +21,7 @@ import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.test.context.jdbc.Sql;
 import org.springframework.web.client.RestTemplate;
 
 import java.time.LocalDateTime;
@@ -30,6 +34,8 @@ import static org.springframework.http.HttpHeaders.CONTENT_TYPE;
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 @AutoConfigureWireMock(port = 8081)
+@Sql(scripts = {"/init.sql"}, executionPhase = Sql.ExecutionPhase.BEFORE_TEST_METHOD)
+@Sql(scripts = {"/clean.sql"}, executionPhase = Sql.ExecutionPhase.AFTER_TEST_METHOD)
 public class IntegrationTests {
 
     @Autowired
@@ -47,10 +53,10 @@ public class IntegrationTests {
     @LocalServerPort
     int appPort;
 
-    @BeforeEach
-    void setup(){
-        repository.deleteAll();
-    }
+//    @BeforeEach
+//    void setup(){
+//        repository.deleteAll();
+//    }
 
     @Test
     void getDetails_dataCorrect_shouldReturnRepositoryInfo() throws JsonProcessingException {
