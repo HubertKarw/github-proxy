@@ -12,6 +12,7 @@ import java.time.LocalDateTime;
 @Getter
 @Setter
 @Entity
+@Builder
 public class GitRepository {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
