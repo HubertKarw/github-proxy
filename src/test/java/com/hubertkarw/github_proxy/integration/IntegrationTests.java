@@ -7,12 +7,15 @@ import com.github.tomakehurst.wiremock.client.WireMock;
 import com.hubertkarw.github_proxy.model.GitRepository;
 import com.hubertkarw.github_proxy.model.GitRepositoryInfo;
 import com.hubertkarw.github_proxy.repository.GitRepositoryJpaRepository;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.web.server.LocalServerPort;
 import org.springframework.cloud.contract.wiremock.AutoConfigureWireMock;
+import org.springframework.http.HttpEntity;
+import org.springframework.http.HttpMethod;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.client.RestTemplate;
@@ -43,6 +46,11 @@ public class IntegrationTests {
 
     @LocalServerPort
     int appPort;
+
+    @BeforeEach
+    void setup(){
+        repository.deleteAll();
+    }
 
     @Test
     void getDetails_dataCorrect_shouldReturnRepositoryInfo() throws JsonProcessingException {
@@ -174,12 +182,13 @@ public class IntegrationTests {
                 ));
 
         String url = String.format("http://localhost:%s/repositories/%s/%s", appPort, owner, repositoryName);
-//        ResponseEntity<GitRepository> response = restTemplate.exchange(url, gitRepository, GitRepository.class);
+        ResponseEntity<GitRepository> response = restTemplate.exchange(url, HttpMethod.PUT, new HttpEntity<>(gitRepository), GitRepository.class);
 //    exchage
+        assertEquals("url", response.getBody().getCloneUrl());
     }
 
     @Test
-    void deleteFromLocal_dataCorrect_shouldDeleteFromRepository(){
+    void deleteFromLocal_dataCorrect_shouldDeleteFromRepository() {
         String owner = "HubertKarw";
         String repositoryName = "example-repo";
 
@@ -193,9 +202,11 @@ public class IntegrationTests {
 
         repository.save(gitRepository);
 
-        String url = String.format("http://localhost:%s/local/repositories/%s/%s", appPort, owner, repositoryName);
+        String url = String.format("http://localhost:%s/repositories/%s/%s", appPort, owner, repositoryName);
         restTemplate.delete(url);
-        Mockito.verify(repository).delete(gitRepository);
+        assertAll(
+                () -> assertEquals(0, repository.findAll().size())
+        );
     }
 
 
