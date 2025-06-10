@@ -25,6 +25,7 @@ import org.springframework.test.context.jdbc.Sql;
 import org.springframework.web.client.RestTemplate;
 
 import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 
 import static com.github.tomakehurst.wiremock.client.WireMock.aResponse;
 import static com.github.tomakehurst.wiremock.client.WireMock.verify;
@@ -85,17 +86,17 @@ public class IntegrationTests {
     @Test
     void getLocalData_dataCorrect_shouldReturnLocalRepositoryInfo() throws JsonProcessingException {
         String owner = "HubertKarw";
-        String repositoryName = "example-repo";
+        String repositoryName = "test1";
 
         GitRepository gitRepository = GitRepository.builder()
                 .fullName(GitRepository.generateFullName(owner, repositoryName))
                 .cloneUrl("url")
-                .createdAt(LocalDateTime.now())
+                .createdAt(LocalDateTime.of(2024, 11, 11, 11, 11))
                 .stars(1L)
                 .description("desc")
                 .build();
 
-        repository.save(gitRepository);
+//        repository.save(gitRepository);
 
 
 //        wireMockServer.stubFor(WireMock.get("/local/repositories/HubertKarw/example-repo")
@@ -109,7 +110,11 @@ public class IntegrationTests {
         ResponseEntity<GitRepository> response = restTemplate.getForEntity(url, GitRepository.class);
 
         assertAll(
-                () -> assertEquals("HubertKarw/example-repo", response.getBody().getFullName())
+                () -> assertEquals("HubertKarw/test1", response.getBody().getFullName()),
+                () -> assertEquals("desc", response.getBody().getDescription()),
+                () -> assertEquals("url1", response.getBody().getCloneUrl()),
+                () -> assertEquals(1L, response.getBody().getStars()),
+                () -> assertEquals("2024-11-11", response.getBody().getCreatedAt().format(DateTimeFormatter.ofPattern("yyyy-MM-dd")).toString())
         );
     }
 
@@ -145,42 +150,46 @@ public class IntegrationTests {
         ResponseEntity<GitRepository> response = restTemplate.postForEntity(url, gitRepository, GitRepository.class);
 
         assertAll(
-                () -> assertEquals("HubertKarw/example-repo", response.getBody().getFullName())
+                () -> assertEquals(6, repository.count()),
+                () -> assertEquals("HubertKarw/example-repo", response.getBody().getFullName()),
+                () -> assertEquals("url", response.getBody().getCloneUrl()),
+                () -> assertEquals("desc", response.getBody().getDescription()),
+                () -> assertEquals(1L, response.getBody().getStars())
         );
     }
 
     @Test
     void putToLocal_dataCorrect_shouldUpdateRepositoryInfo() throws JsonProcessingException {
         String owner = "HubertKarw";
-        String repositoryName = "example-repo";
+        String repositoryName = "test1";
 
         GitRepositoryInfo gitRepositoryInfo = GitRepositoryInfo.builder()
                 .fullName(GitRepository.generateFullName(owner, repositoryName))
-                .cloneUrl("url")
+                .cloneUrl("url11")
                 .createdAt(LocalDateTime.now())
                 .stars(1L)
-                .description("desc")
+                .description("desc1")
                 .build();
 
         GitRepository gitRepository = GitRepository.builder()
                 .fullName(GitRepository.generateFullName(owner, repositoryName))
-                .cloneUrl("url")
-                .createdAt(LocalDateTime.now())
-                .stars(1L)
-                .description("desc")
-                .build();
-
-        GitRepository gitRepositoryToUpdate = GitRepository.builder()
-                .fullName(GitRepository.generateFullName(owner, repositoryName))
                 .cloneUrl("url11")
                 .createdAt(LocalDateTime.now())
-                .stars(0L)
+                .stars(1L)
                 .description("desc1")
                 .build();
 
-        repository.save(gitRepository);
+//        GitRepository gitRepositoryToUpdate = GitRepository.builder()
+//                .fullName(GitRepository.generateFullName(owner, repositoryName))
+//                .cloneUrl("url11")
+//                .createdAt(LocalDateTime.now())
+//                .stars(0L)
+//                .description("desc1")
+//                .build();
 
-        wireMockServer.stubFor(WireMock.get("/repos/HubertKarw/example-repo")
+//        repository.save(gitRepository);
+
+        wireMockServer.stubFor(WireMock.get("/repos/HubertKarw/test1")
                 .willReturn(aResponse()
                         .withStatus(200)
                         .withHeader(CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)
@@ -190,30 +199,34 @@ public class IntegrationTests {
         String url = String.format("http://localhost:%s/repositories/%s/%s", appPort, owner, repositoryName);
         ResponseEntity<GitRepository> response = restTemplate.exchange(url, HttpMethod.PUT, new HttpEntity<>(gitRepository), GitRepository.class);
 //    exchage
-        assertEquals("url", response.getBody().getCloneUrl());
+        assertAll(
+                () -> assertEquals(5, repository.count()),
+                () -> assertEquals("HubertKarw/test1", response.getBody().getFullName()),
+                () -> assertEquals("url11", response.getBody().getCloneUrl()),
+                () -> assertEquals("desc1", response.getBody().getDescription()),
+                () -> assertEquals(1L, response.getBody().getStars())
+        );
     }
 
     @Test
     void deleteFromLocal_dataCorrect_shouldDeleteFromRepository() {
         String owner = "HubertKarw";
-        String repositoryName = "example-repo";
+        String repositoryName = "test1";
 
-        GitRepository gitRepository = GitRepository.builder()
-                .fullName(GitRepository.generateFullName(owner, repositoryName))
-                .cloneUrl("url")
-                .createdAt(LocalDateTime.now())
-                .stars(1L)
-                .description("desc")
-                .build();
-
-        repository.save(gitRepository);
+//        GitRepository gitRepository = GitRepository.builder()
+//                .fullName(GitRepository.generateFullName(owner, repositoryName))
+//                .cloneUrl("url")
+//                .createdAt(LocalDateTime.now())
+//                .stars(1L)
+//                .description("desc")
+//                .build();
+//
+//        repository.save(gitRepository);
 
         String url = String.format("http://localhost:%s/repositories/%s/%s", appPort, owner, repositoryName);
         restTemplate.delete(url);
         assertAll(
-                () -> assertEquals(0, repository.findAll().size())
+                () -> assertEquals(4, repository.count())
         );
     }
-
-
 }
