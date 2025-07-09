@@ -1,9 +1,13 @@
 package com.hubertkarw.github_proxy.feignClient;
 
+import ch.qos.logback.core.net.server.Client;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.github.tomakehurst.wiremock.WireMockServer;
+import com.github.tomakehurst.wiremock.client.WireMock;
+import com.hubertkarw.github_proxy.model.GitRepository;
 import com.hubertkarw.github_proxy.model.GitRepositoryInfo;
+import feign.RetryableException;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -16,6 +20,7 @@ import org.springframework.context.annotation.Profile;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.client.RestClientException;
 
 
 import java.time.LocalDateTime;
@@ -43,22 +48,23 @@ public class GithubRepositoryClientTest {
     private ObjectMapper mapper;
 
     @BeforeEach
-    void setup(){
+    void setup() {
         wireMockServer.start();
     }
 
     @BeforeEach
-    void shutdown(){
+    void shutdown() {
+        wireMockServer.resetAll();
         wireMockServer.stop();
     }
 
     @Test
     void getRepository_validNameAndOwner_returnRepository() throws JsonProcessingException {
         GitRepositoryInfo info = GitRepositoryInfo.builder()
-                        .fullName("HubertKarw/github-proxy")
-                        .description(null)
-                        .createdAt(LocalDateTime.of(2022,12,12,12,12))
-                        .build();
+                .fullName("HubertKarw/github-proxy")
+                .description(null)
+                .createdAt(LocalDateTime.of(2022, 12, 12, 12, 12))
+                .build();
 
         wireMockServer.stubFor(get("/repos/HubertKarw/github-proxy")
                 .willReturn(aResponse()
@@ -76,13 +82,13 @@ public class GithubRepositoryClientTest {
     }
 
     @Test
-    void getUnknown_notKnownPath_returnNotFound(){
+    void getUnknown_notKnownPath_returnNotFound() {
         stubFor(get("/repoes").willReturn(aResponse().withStatus(404)));
         ResponseEntity<String> response = restTemplate.getForEntity("http://localhost:8081/repoes", String.class);
         Assertions.assertEquals(HttpStatus.NOT_FOUND, response.getStatusCode());
     }
 
-//    @Test
+    //    @Test
 //    void givenWireMockStub_whenGetPing_thenReturnsPong() {
 //        stubFor(WireMock.get("/ping").willReturn(ok("pong")));
 //
@@ -90,5 +96,34 @@ public class GithubRepositoryClientTest {
 //
 //        Assertions.assertEquals("pong", response.getBody());
 //    }
+    @Test
+    void getDetails_serviceError500_shouldThrowException(){
+        String owner = "HubertKarw";
+        String repositoryName = "example-repo";
 
+
+        wireMockServer.stubFor(WireMock.get("/repos/HubertKarw/example-repo")
+                .willReturn(aResponse()
+                        .withStatus(500)
+                ));
+        Assertions.assertThrows(RetryableException.class, () -> client.getGitRepository(owner, repositoryName));
+
+        verify(3, getRequestedFor(urlEqualTo("/repos/HubertKarw/example-repo")));
+
+    }
+    @Test
+    void getDetails_serviceError503_shouldThrowException(){
+        String owner = "HubertKarw";
+        String repositoryName = "example-repo";
+
+
+        wireMockServer.stubFor(WireMock.get("/repos/HubertKarw/example-repo")
+                .willReturn(aResponse()
+                        .withStatus(503)
+                ));
+        Assertions.assertThrows(RetryableException.class, () -> client.getGitRepository(owner, repositoryName));
+
+        verify(3, getRequestedFor(urlEqualTo("/repos/HubertKarw/example-repo")));
+
+    }
 }

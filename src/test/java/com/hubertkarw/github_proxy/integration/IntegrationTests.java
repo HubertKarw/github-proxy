@@ -17,18 +17,15 @@ import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.web.server.LocalServerPort;
 import org.springframework.cloud.contract.wiremock.AutoConfigureWireMock;
-import org.springframework.http.HttpEntity;
-import org.springframework.http.HttpMethod;
-import org.springframework.http.MediaType;
-import org.springframework.http.ResponseEntity;
+import org.springframework.http.*;
 import org.springframework.test.context.jdbc.Sql;
+import org.springframework.web.client.RestClientException;
 import org.springframework.web.client.RestTemplate;
 
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 
-import static com.github.tomakehurst.wiremock.client.WireMock.aResponse;
-import static com.github.tomakehurst.wiremock.client.WireMock.verify;
+import static com.github.tomakehurst.wiremock.client.WireMock.*;
 import static org.junit.jupiter.api.Assertions.assertAll;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.springframework.http.HttpHeaders.CONTENT_TYPE;
@@ -58,6 +55,8 @@ public class IntegrationTests {
 //    void setup(){
 //        repository.deleteAll();
 //    }
+
+
 
     @Test
     void getDetails_dataCorrect_shouldReturnRepositoryInfo() throws JsonProcessingException {
@@ -227,6 +226,7 @@ public class IntegrationTests {
         restTemplate.delete(url);
         assertAll(
                 () -> assertEquals(4, repository.count())
+//                () -> assertEquals(HttpStatus.OK, );
         );
     }
 }
